@@ -1,0 +1,84 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace pz_3
+{
+    internal class HashTable
+    {
+        private int size;
+        private int[] keys;
+        private bool[] occupied;
+
+        public HashTable(int numberOfKeys)
+        {
+            size = (int)(numberOfKeys * 1.5);
+            keys = new int[size];
+            occupied = new bool[size];
+        }
+
+        private int HashFunction(int key)
+        {
+            return (key * key) / 10 % size;
+        }
+
+        public void Insert(int key)
+        {
+            int index = HashFunction(key);
+
+            while (occupied[index])
+            {
+                index = (index + 1) % size;
+            }
+
+            keys[index] = key;
+            occupied[index] = true;
+        }
+
+        public void DisplayHashTable()
+        {
+            Console.WriteLine("Хэш-таблдица:");
+            for (int i = 0; i < size; i++)
+            {
+                if (occupied[i])
+                {
+                    Console.WriteLine($"Индекс: {i}, Ключ: {keys[i]}");
+                }
+                else
+                {
+                    Console.WriteLine($"Индекс: {i}, Пусто");
+                }
+            }
+        }
+    }
+}
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace pz_3
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            HashTable hashTable = new HashTable(75);
+
+            Random random = new Random();
+            for (int i = 0; i < 75; i++)
+            {
+                int key = random.Next(10000, 100000);
+                hashTable.Insert(key);
+            }
+
+            hashTable.DisplayHashTable();
+        }
+    }
+}
