@@ -1,0 +1,140 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        
+        Graph graph = new Graph();
+
+        
+        Node nodeA = new Node("A");
+        Node nodeB = new Node("B");
+        Node nodeC = new Node("C");
+        Node nodeD = new Node("D");
+
+        graph.AddNode(nodeA);
+        graph.AddNode(nodeB);
+        graph.AddNode(nodeC);
+        graph.AddNode(nodeD);
+
+        
+        graph.AddEdge(nodeA, nodeB);
+        graph.AddEdge(nodeA, nodeC);
+        graph.AddEdge(nodeB, nodeD);
+        graph.AddEdge(nodeC, nodeD);
+
+       
+        Console.WriteLine("Обход графа в глубину:");
+        DFS(graph, nodeA, nodeD);
+
+        Console.ReadLine();
+    }
+
+    static void DFS(Graph graph, Node start, Node end)
+    {
+        HashSet<Node> visited = new HashSet<Node>();
+        DFSRecursive(graph, start, end, visited);
+    }
+
+    static void DFSRecursive(Graph graph, Node current, Node end, HashSet<Node> visited)
+    {
+        if (current == null)
+        {
+            Console.WriteLine("Ошибка: попытка обхода null-узла");
+            return;
+        }
+
+        Console.WriteLine($"Посещен узел: {current.Data}");
+        visited.Add(current);
+
+        if (current == end)
+        {
+            Console.WriteLine($"Достигнут конечный узел: {end.Data}");
+            return;
+        }
+
+        foreach (Node neighbor in current.Neighbors)
+        {
+            if (!visited.Contains(neighbor))
+            {
+                DFSRecursive(graph, neighbor, end, visited);
+            }
+        }
+    }
+}
+
+internal class Graph
+{
+    List<Node> Nodes { get; set; }
+
+    public Graph()
+    {
+        Nodes = new List<Node>();
+    }
+
+    public Node GetNode(string data)
+    {
+        var node = Nodes.SingleOrDefault(x => x.Data == data);
+
+        if (node != null)
+            return node;
+
+        throw new InvalidOperationException($"Узел с данными {data} не найден.");
+    }
+
+
+    public void AddNode(Node node)
+    {
+        if (IsExists(node))
+            Console.WriteLine("Данный узел уже присутствует в графе. Дальнейшее добавление невозможно");
+        else
+        {
+            Nodes.Add(node);
+            Console.WriteLine($"Узел со значением {node.Data} добавлен в граф");
+        }
+    }
+
+    public void AddEdge(Node n1, Node n2)
+    {
+        if (IsExists(n1) && IsExists(n2))
+        {
+            n1.AddLinkToNode(n2);
+            Console.WriteLine($"Образована связь между вершинами {n1.Data} и {n2.Data}");
+        }
+    }
+
+    public bool IsExists(Node node)
+    {
+        return Nodes.Any(item => item.Data == node.Data);
+    }
+}
+
+internal class Node
+{
+    public string Data { get; set; }
+
+    public List<Node> Neighbors { get; set; }
+
+    public Node(string data)
+    {
+        this.Data = data;
+        Neighbors = new List<Node>();
+    }
+
+    public void AddLinkToNode(Node newNode)
+    {
+        if (!this.IsLinked(newNode))
+        {
+            this.Neighbors.Add(newNode);
+            newNode.Neighbors.Add(this);
+        }
+    }
+
+    public bool IsLinked(Node node)
+    {
+        return Neighbors.Any(item => item.Data == node.Data);
+    }
+}
