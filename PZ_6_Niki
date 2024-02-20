@@ -1,0 +1,197 @@
+using System;
+using System.Collections.Generic;
+
+public class DTreeNode
+{
+    public char Info { get; set; }
+    public int Key { get; set; }
+    public DTreeNode Left { get; set; }
+    public DTreeNode Right { get; set; }
+
+    public DTreeNode(char info, int key)
+    {
+        Info = info;
+        Key = key;
+    }
+
+    public DTreeNode(char info, int key, DTreeNode left, DTreeNode right)
+    {
+        Info = info;
+        Key = key;
+        Left = left;
+        Right = right;
+    }
+}
+
+public class DixotomyTree
+{
+    private DTreeNode root;
+
+    public DTreeNode Root
+    {
+        get { return root; }
+        set { root = value; }
+    }
+
+    public DixotomyTree()
+    {
+        root = null;
+    }
+
+    public DTreeNode InsertNode(DTreeNode currentRoot, int keyValue)
+    {
+        if (currentRoot == null)
+        {
+            return new DTreeNode(' ', keyValue, null, null);
+        }
+
+        if (keyValue < currentRoot.Key)
+        {
+            currentRoot.Left = InsertNode(currentRoot.Left, keyValue);
+        }
+        else if (keyValue > currentRoot.Key)
+        {
+            currentRoot.Right = InsertNode(currentRoot.Right, keyValue);
+        }
+        else
+        {
+            Console.WriteLine($"Узел с ключом {keyValue} уже есть в дереве");
+        }
+
+        return currentRoot;
+    }
+
+    public void InOrderTraversal(DTreeNode currentNode)
+    {
+        if (currentNode == null)
+        {
+            return;
+        }
+
+        InOrderTraversal(currentNode.Left);
+        Console.Write(currentNode.Key + " ");
+        InOrderTraversal(currentNode.Right);
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        DixotomyTree tree = new DixotomyTree();
+        Random random = new Random();
+
+        for (int i = 0; i < 10; i++)
+        {
+            int randomValue = random.Next(-1000, 1001);
+            tree.Root = tree.InsertNode(tree.Root, randomValue);
+        }
+
+        Console.Write("Значения в порядке инфиксного обхода: ");
+        tree.InOrderTraversal(tree.Root);
+        Console.WriteLine();
+
+        int sum = CalculateSum(tree.Root);
+        Console.WriteLine($"Сумма значений информационных полей: {sum}");
+
+        int internalNodesCount = CountInternalNodes(tree.Root);
+        Console.WriteLine($"Количество внутренних узлов: {internalNodesCount}");
+
+        List<int> negativeValues = CopyNegativeValues(tree.Root);
+        Console.WriteLine("Отрицательные значения в линейной структуре: " + string.Join(", ", negativeValues));
+
+        DixotomyTree secondTree = new DixotomyTree();
+        for (int i = 0; i < 10; i++)
+        {
+            int randomValue = random.Next(-1000, 1001);
+            secondTree.Root = secondTree.InsertNode(secondTree.Root, randomValue);
+        }
+
+        List<int> commonValues = CopyCommonValues(tree.Root, secondTree.Root);
+        Console.WriteLine("Совпадающие значения в линейной структуре: " + string.Join(", ", commonValues));
+    }
+
+    static int CalculateSum(DTreeNode currentNode)
+    {
+        if (currentNode == null)
+        {
+            return 0;
+        }
+
+        return currentNode.Key + CalculateSum(currentNode.Left) + CalculateSum(currentNode.Right);
+    }
+
+    static int CountInternalNodes(DTreeNode currentNode)
+    {
+        if (currentNode == null || (currentNode.Left == null && currentNode.Right == null))
+        {
+            return 0;
+        }
+
+        return 1 + CountInternalNodes(currentNode.Left) + CountInternalNodes(currentNode.Right);
+    }
+
+    static List<int> CopyNegativeValues(DTreeNode currentNode)
+    {
+        List<int> result = new List<int>();
+        CopyNegativeValuesRecursive(currentNode, result);
+        return result;
+    }
+
+    static void CopyNegativeValuesRecursive(DTreeNode currentNode, List<int> result)
+    {
+        if (currentNode == null)
+        {
+            return;
+        }
+
+        if (currentNode.Key < 0)
+        {
+            result.Add(currentNode.Key);
+        }
+
+        CopyNegativeValuesRecursive(currentNode.Left, result);
+        CopyNegativeValuesRecursive(currentNode.Right, result);
+    }
+
+    static List<int> CopyCommonValues(DTreeNode root1, DTreeNode root2)
+    {
+        List<int> commonValues = new List<int>();
+        HashSet<int> valuesSet = new HashSet<int>();
+
+        PopulateSet(root1, valuesSet);
+
+        CheckAndCopy(root2, valuesSet, commonValues);
+
+        return commonValues;
+    }
+
+    static void PopulateSet(DTreeNode currentNode, HashSet<int> valuesSet)
+    {
+        if (currentNode == null)
+        {
+            return;
+        }
+
+        valuesSet.Add(currentNode.Key);
+
+        PopulateSet(currentNode.Left, valuesSet);
+        PopulateSet(currentNode.Right, valuesSet);
+    }
+
+    static void CheckAndCopy(DTreeNode currentNode, HashSet<int> valuesSet, List<int> commonValues)
+    {
+        if (currentNode == null)
+        {
+            return;
+        }
+
+        if (valuesSet.Contains(currentNode.Key))
+        {
+            commonValues.Add(currentNode.Key);
+        }
+
+        CheckAndCopy(currentNode.Left, valuesSet, commonValues);
+        CheckAndCopy(currentNode.Right, valuesSet, commonValues);
+    }
+}
